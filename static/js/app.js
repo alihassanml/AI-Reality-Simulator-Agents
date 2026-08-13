@@ -24,13 +24,16 @@ function svgEl(tag, attrs) {
   return el;
 }
 
+/* Only what a run can actually change. The three judgements are what agents
+   move through StateDelta; the two counts are recomputed from the ticket and
+   task tables. Revenue is seeded once and never written by anything, so it is
+   not shown. */
 const METRICS = [
-  { key: "revenue",             label: "Revenue",            kind: "currency" },
-  { key: "satisfaction",        label: "Satisfaction",       kind: "pct" },
-  { key: "reputation",          label: "Reputation",         kind: "pct" },
+  { key: "satisfaction",        label: "Satisfaction",        kind: "pct" },
+  { key: "reputation",          label: "Reputation",          kind: "pct" },
   { key: "investor_confidence", label: "Investor confidence", kind: "pct" },
-  { key: "active_issues",       label: "Active issues",      kind: "count" },
-  { key: "pending_tasks",       label: "Pending tasks",      kind: "count" },
+  { key: "active_issues",       label: "Open issues",         kind: "count" },
+  { key: "pending_tasks",       label: "Pending tasks",       kind: "count" },
 ];
 
 const IMPACT_LABELS = {
@@ -174,7 +177,6 @@ function simulator() {
         const value = this.company[m.key] ?? 0;
         const delta = this.lastDeltas[m.key] || 0;
         let display = value;
-        if (m.kind === "currency") display = "$" + (value / 1_000_000).toFixed(2) + "M";
         let pct = null, color = "var(--amber)";
         if (m.kind === "pct") {
           pct = Math.max(0, Math.min(100, value));
@@ -187,6 +189,9 @@ function simulator() {
         };
       });
     },
+
+    get meterCards() { return this.metricCards.filter((m) => m.pct !== null); },
+    get countCards() { return this.metricCards.filter((m) => m.pct === null); },
 
     statusOf(name) { return (this.agentState[name] || {}).status || "idle"; },
     detailOf(name) { return (this.agentState[name] || {}).detail || "Waiting"; },

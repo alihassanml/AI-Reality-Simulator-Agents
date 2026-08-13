@@ -464,31 +464,79 @@ body {
 
 /* -------------------------------------------------------------- metrics */
 
-.metrics-wrap { padding: 12px; flex: 1; overflow-y: auto; }
-.metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+/* Six equal cards gave a static number the same weight as one a decision had
+   just moved. These are rows instead: label left, value right, meter under. */
 
-.metric {
-  border: 1px solid var(--line-soft);
-  border-radius: 9px;
-  padding: 9px 10px;
-  background: rgba(255,255,255,.015);
-  transition: border-color .4s;
+.metrics-wrap { padding: 13px 14px 14px; flex: 1; overflow-y: auto; }
+.metrics-wrap > .eyebrow { display: block; margin-bottom: 11px; }
+
+.meters { display: flex; flex-direction: column; gap: 11px; }
+
+/* Negative margin keeps the flash background from shifting the row. */
+.meter {
+  padding: 3px 5px;
+  margin: -3px -5px;
+  border-radius: 7px;
+  transition: background .5s;
 }
-.metric[data-flash="up"]   { border-color: rgba(74,222,128,.55); }
-.metric[data-flash="down"] { border-color: rgba(255,95,78,.55); }
+.meter[data-flash="up"]   { background: rgba(74,222,128,.10); }
+.meter[data-flash="down"] { background: rgba(255,95,78,.10); }
 
-.metric__label {
+.meter__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+.meter__label {
   font-family: var(--font-mono);
   font-size: 9px;
   letter-spacing: .12em;
   text-transform: uppercase;
   color: var(--faint);
-  margin-bottom: 4px;
 }
-.metric__value {
+.meter__value {
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: 19px;
+  font-size: 17px;
+  letter-spacing: -.02em;
+  white-space: nowrap;
+}
+
+/* Counts are facts, not judgements, so they sit below the rule and stay small. */
+.counts {
+  display: flex;
+  gap: 10px;
+  margin-top: 13px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line-soft);
+}
+/* Stacked with a rule between them: side by side on one line, the first
+   value collided with the second label and read as a single sentence. */
+.count {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+/* Alpine leaves the <template> in the DOM as the first child of .counts, so
+   :first-child never matches a rendered row and every column got a divider.
+   Hanging it off the adjacent sibling is immune to that. */
+.count + .count { padding-left: 13px; border-left: 1px solid var(--line-soft); }
+.count__label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.count__value {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 15px;
   letter-spacing: -.02em;
 }
 .metric__delta {
