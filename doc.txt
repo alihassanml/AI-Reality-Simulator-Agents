@@ -1,0 +1,712 @@
+# AI Reality Simulator
+
+## 1. Project Overview
+
+Build a **visual multi-agent simulation platform** where AI characters live inside a virtual company and independently react to real-world events.
+
+The user can trigger an event, and the system simulates how different AI characters **observe, think, communicate, make decisions, and take actions**.
+
+### Example
+
+**Event:** Customer submits a serious complaint.
+
+```text
+Customer
+   ↓
+Complaint
+   ↓
+Sales Agent
+   ↓
+CEO Agent
+   ↓
+Developer Agent
+   ↓
+Investigation
+   ↓
+CEO Decision
+   ↓
+Resolution
+```
+
+The entire process appears visually on a **real-time simulation dashboard**.
+
+---
+
+# 2. Main Goal
+
+Create a system that demonstrates:
+
+* Multi-Agent AI
+* Agent communication
+* Agent memory
+* LLM reasoning
+* Tool calling
+* Event-driven architecture
+* Real-time simulation
+* Decision making
+* Visual AI interactions
+
+The project should feel like a **living virtual company**, not a chatbot.
+
+---
+
+# 3. AI Characters
+
+Start with 5 agents.
+
+### CEO
+
+Responsibilities:
+
+* Make strategic decisions
+* Review important events
+* Assign tasks
+* Approve major actions
+
+### Sales Agent
+
+Responsibilities:
+
+* Handle customers
+* Receive complaints
+* Manage leads
+* Report customer issues
+
+### Developer Agent
+
+Responsibilities:
+
+* Investigate technical problems
+* Analyze logs
+* Identify possible bugs
+* Propose technical solutions
+
+### Customer Agent
+
+Responsibilities:
+
+* Create requests
+* Report problems
+* React to company decisions
+* Change satisfaction level
+
+### Investor Agent
+
+Responsibilities:
+
+* Monitor company performance
+* Review major decisions
+* Evaluate business impact
+
+---
+
+# 4. Simulation Environment
+
+Create a virtual company dashboard containing:
+
+```text
+Company
+├── CEO
+├── Sales
+├── Developer
+├── Customer
+└── Investor
+```
+
+Each character should have:
+
+* Name
+* Role
+* Current status
+* Current task
+* Memory
+* Personality
+* Goals
+* Activity history
+
+---
+
+# 5. Event System
+
+The user should be able to trigger events.
+
+Initial events:
+
+### Customer Complaint
+
+```text
+Customer reports a serious issue
+```
+
+### Production Bug
+
+```text
+Application crashes
+```
+
+### Lost Customer
+
+```text
+Important customer wants to leave
+```
+
+### Investor Question
+
+```text
+Investor asks why revenue decreased
+```
+
+### Security Incident
+
+```text
+Suspicious activity detected
+```
+
+### New Lead
+
+```text
+Large company submits a business inquiry
+```
+
+---
+
+# 6. Agent Workflow
+
+Every event follows a workflow.
+
+Example:
+
+### Customer Complaint
+
+```text
+1. Customer creates complaint
+        ↓
+2. Sales receives complaint
+        ↓
+3. Sales analyzes issue
+        ↓
+4. Sales informs CEO
+        ↓
+5. CEO assigns Developer
+        ↓
+6. Developer investigates
+        ↓
+7. Developer reports findings
+        ↓
+8. CEO decides solution
+        ↓
+9. Sales communicates resolution
+        ↓
+10. Customer reacts
+        ↓
+11. Investor receives business impact
+```
+
+Every step should create a visible event in the UI.
+
+---
+
+# 7. Agent Communication
+
+Agents should communicate through structured messages.
+
+Example:
+
+```text
+FROM: Sales Agent
+TO: CEO Agent
+
+Customer ACME reported a critical payment issue.
+
+Priority: High
+Customer Value: $120,000/year
+Recommended Action: Immediate technical investigation
+```
+
+CEO:
+
+```text
+FROM: CEO Agent
+TO: Developer Agent
+
+Investigate ACME payment issue.
+
+Priority: Critical
+Deadline: Immediate
+```
+
+Developer:
+
+```text
+FROM: Developer Agent
+TO: CEO Agent
+
+Investigation completed.
+
+Root Cause:
+Payment API timeout.
+
+Recommended Fix:
+Increase timeout and add retry mechanism.
+```
+
+---
+
+# 8. Agent Memory
+
+Each agent should have:
+
+### Short-Term Memory
+
+Current conversation and active task.
+
+### Long-Term Memory
+
+Important historical information.
+
+Example:
+
+```text
+Customer:
+ACME
+
+History:
+- High-value customer
+- Previous payment issue
+- Prefers fast support
+- Contract renewal in 30 days
+```
+
+The agent should use memory when making decisions.
+
+---
+
+# 9. Agent Tools
+
+Agents should have access to tools instead of only generating text.
+
+Example tools:
+
+### Sales
+
+* get_customer()
+* get_customer_history()
+* create_ticket()
+* send_message()
+
+### Developer
+
+* get_logs()
+* search_errors()
+* check_service_status()
+* create_bug_report()
+
+### CEO
+
+* get_company_metrics()
+* assign_task()
+* approve_action()
+
+### Investor
+
+* get_revenue()
+* get_customer_metrics()
+* get_company_report()
+
+---
+
+# 10. Real-Time Simulation
+
+The frontend should show the simulation happening live.
+
+Example:
+
+```text
+09:41:02  Customer created complaint
+
+09:41:04  Sales Agent received complaint
+
+09:41:07  Sales Agent analyzed customer history
+
+09:41:10  Sales → CEO
+
+09:41:13  CEO assigned Developer
+
+09:41:18  Developer started investigation
+
+09:41:31  Developer found payment API issue
+
+09:41:35  CEO approved resolution
+```
+
+Use WebSockets or Server-Sent Events for real-time updates.
+
+---
+
+# 11. Main Dashboard
+
+Create one main visual dashboard.
+
+### Left
+
+AI characters.
+
+```text
+CEO
+● Working
+
+Sales
+● Handling customer
+
+Developer
+● Investigating
+
+Customer
+● Waiting
+
+Investor
+● Monitoring
+```
+
+### Center
+
+Visual communication between agents.
+
+```text
+Sales ─────→ CEO
+              ↓
+          Developer
+              ↓
+Developer ──→ CEO
+              ↓
+            Sales
+              ↓
+          Customer
+```
+
+### Right
+
+Current event.
+
+```text
+EVENT
+
+Customer Complaint
+
+Priority:
+Critical
+
+Status:
+Investigation
+
+Current Agent:
+Developer
+```
+
+### Bottom
+
+Live activity timeline.
+
+---
+
+# 12. Decision System
+
+Agents should produce structured decisions.
+
+Example:
+
+```json
+{
+  "decision": "investigate_issue",
+  "reason": "High-value customer affected",
+  "priority": "critical",
+  "assigned_to": "developer"
+}
+```
+
+The frontend converts these decisions into visual events.
+
+---
+
+# 13. Company State
+
+Maintain a global simulation state.
+
+Example:
+
+```text
+Revenue
+Customers
+Active Issues
+Customer Satisfaction
+Pending Tasks
+Company Reputation
+Investor Confidence
+```
+
+Agent decisions should change the company state.
+
+Example:
+
+```text
+Complaint
+↓
+Customer Satisfaction -10
+↓
+Fast Resolution
+↓
+Customer Satisfaction +8
+```
+
+---
+
+# 14. Technology Stack
+
+### Frontend
+
+ fastapi (tempalte/index.html)
+* TypeScript
+* Tailwind CSS
+* Framer Motion
+* Recharts
+
+### Backend
+
+* Python
+* FastAPI
+* WebSockets
+
+### AI
+
+* OpenAI / Claude
+* LangGraph
+* Structured Outputs
+* Tool Calling
+
+### Database
+sqlite3
+
+### Memory
+
+* PostgreSQL
+sqlite3
+
+
+---
+
+# 15. Architecture
+
+```text
+                 ┌───────────────┐
+                 │   Next.js UI  │
+                 └───────┬───────┘
+                         │
+                    WebSocket
+                         │
+                 ┌───────▼───────┐
+                 │    FastAPI    │
+                 └───────┬───────┘
+                         │
+                 ┌───────▼───────┐
+                 │ Simulation    │
+                 │    Engine     │
+                 └───────┬───────┘
+                         │
+             ┌───────────┼───────────┐
+             ↓           ↓           ↓
+          CEO Agent   Sales Agent  Dev Agent
+             ↓           ↓           ↓
+          Investor     Customer     Tools
+             └───────────┼───────────┘
+                         ↓
+                  Memory / State
+                         ↓
+                  PostgreSQL
+                    + pgvector
+```
+
+---
+
+# 16. Core Backend Modules
+
+```text
+backend/
+├── agents/
+│   ├── ceo.py
+│   ├── sales.py
+│   ├── developer.py
+│   ├── customer.py
+│   └── investor.py
+│
+├── simulation/
+│   ├── engine.py
+│   ├── events.py
+│   ├── state.py
+│   └── scheduler.py
+│
+├── memory/
+│   ├── short_term.py
+│   └── long_term.py
+│
+├── tools/
+│   ├── customer.py
+│   ├── developer.py
+│   └── company.py
+│
+├── api/
+│   ├── events.py
+│   └── simulation.py
+│
+└── main.py
+```
+
+---
+
+# 17. Frontend Modules
+
+```text
+frontend/
+├── components/
+│   ├── AgentCard
+│   ├── AgentGraph
+│   ├── EventPanel
+│   ├── ActivityTimeline
+│   ├── DecisionCard
+│   ├── CompanyMetrics
+│   └── SimulationControls
+│
+├── app/
+│   ├── dashboard
+│   └── simulation
+│
+└── lib/
+    └── websocket.ts
+```
+
+---
+
+# 18. Simulation Controls
+
+The user should have:
+
+```text
+[ Start Simulation ]
+
+[ Trigger Event ]
+
+[ Pause ]
+
+[ Resume ]
+
+[ Reset ]
+
+Event:
+[ Customer Complaint ▼ ]
+```
+
+When the user clicks **Trigger Event**, the simulation starts.
+
+---
+
+# 19. Important UI Feature
+
+Show the agents **actively doing something**.
+
+For example:
+
+```text
+CEO
+● Thinking...
+
+Sales
+● Reviewing customer history...
+
+Developer
+● Searching logs...
+
+Investor
+● Analyzing revenue impact...
+```
+
+Then transition to:
+
+```text
+CEO
+✓ Decision made
+
+Developer
+✓ Investigation completed
+```
+
+This makes the project highly suitable for video.
+
+---
+
+# 20. First MVP
+
+Do **not** build everything initially.
+
+Build only:
+
+### Agents
+
+* CEO
+* Sales
+* Developer
+* Customer
+
+### Event
+
+* Customer Complaint
+
+### Features
+
+* Agent communication
+* Agent memory
+* Tool calling
+* Simulation engine
+* Real-time timeline
+* Agent status
+* Decision visualization
+* Company state
+
+Once this works, add Investor and additional scenarios.
+
+---
+
+# 21. Demo Video
+
+The first video should be approximately **30–60 seconds**.
+
+Show:
+
+```text
+1. Empty company dashboard
+
+2. Trigger:
+   Customer Complaint
+
+3. Customer becomes unhappy
+
+4. Sales receives complaint
+
+5. Sales → CEO
+
+6. CEO assigns Developer
+
+7. Developer investigates
+
+8. Developer finds issue
+
+9. CEO makes decision
+
+10. Customer receives resolution
+
+11. Dashboard shows final company state
+```
+
+The important visual is:
+
+**One event → multiple AI agents → communication → decisions → changing world state.**
+
+That is the core project.

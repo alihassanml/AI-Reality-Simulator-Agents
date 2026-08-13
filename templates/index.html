@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Reality Simulator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/app.css">
+</head>
+<body>
+<div class="app" x-data="simulator()" x-cloak>
+
+  <!-- ---------------------------------------------------------- masthead -->
+  <header class="masthead">
+    <div class="brand">
+      <span class="brand__mark">AI Reality <em>Simulator</em></span>
+      <span class="brand__sub">{{ model_name }}</span>
+    </div>
+
+    <div class="masthead__spacer"></div>
+
+    <div class="runstate" :data-state="status">
+      <span class="runstate__dot"></span>
+      <span x-text="statusLabel"></span>
+    </div>
+
+    <select class="select" x-model="selectedEvent" :disabled="isBusy" aria-label="Preset scenario">
+      <template x-for="e in events" :key="e.key">
+        <option :value="e.key" x-text="e.title"></option>
+      </template>
+    </select>
+
+    <div class="prompt" :class="customPrompt.trim() && 'prompt--active'">
+      <input class="prompt__field" type="text" maxlength="500"
+             x-model="customPrompt" :disabled="isBusy"
+             @keydown.enter="trigger()"
+             placeholder="…or describe your own situation"
+             aria-label="Describe your own situation">
+      <button class="prompt__clear" x-show="customPrompt.trim()" @click="customPrompt = ''"
+              aria-label="Clear">×</button>
+    </div>
+
+    <button class="btn btn--primary" @click="trigger()" :disabled="isBusy">Run simulation</button>
+    <button class="btn" x-show="status !== 'paused'" @click="pause()" :disabled="status !== 'running'">Pause</button>
+    <button class="btn" x-show="status === 'paused'" @click="resume()">Resume</button>
+    <button class="btn" @click="reset()" :disabled="status === 'running'">Reset world</button>
+  </header>
+
+  <!-- ------------------------------------------------------------- stage -->
+  <div class="stage">
+
+    <!-- LEFT: the five characters -->
+    <section class="panel roster-panel">
+      <div class="panel__head">
+        <span class="eyebrow">Characters</span>
+        <span class="eyebrow" x-text="activeCount + ' active'"></span>
+      </div>
+      <div class="panel__body">
+        <div class="roster">
+          <template x-for="a in agents" :key="a.name">
+            <button class="agent" :data-status="statusOf(a.name)" @click="openAgent(a)"
+                    :aria-label="'Inspect ' + a.label">
+              <span class="agent__avatar" x-text="codeOf(a.name)"></span>
+              <span>
+                <span class="agent__name" x-text="a.label"></span>
+                <span class="agent__detail" x-text="detailOf(a.name)"></span>
+              </span>
+            </button>
+          </template>
+        </div>
+      </div>
+    </section>
+
+    <!-- CENTER: the signal ring -->
+    <section class="panel">
+      <div class="panel__head">
+        <span class="eyebrow">Signal ring</span>
+        <span class="eyebrow" x-text="messageCount + ' messages routed'"></span>
+      </div>
+
+      <div class="ring-stage">
+      <div class="ring-wrap">
+        <svg class="ring" viewBox="0 0 460 460" role="img"
+             aria-label="Communication ring showing the five agents and messages passing between them">
+          <circle class="ring__orbit" cx="230" cy="230" r="150"></circle>
+
+          <!-- chords and nodes are built in JS: a <template> inside <svg> is parsed
+               as an SVG element, not an HTMLTemplateElement, so x-for cannot drive them -->
+          <g id="chords"></g>
+
+          <!-- the event at the core -->
+          <g>
+            <circle class="ring__core-ring" cx="230" cy="230" r="34"></circle>
+            <circle class="ring__core-ring ring__core-ring--live" cx="230" cy="230" r="34" x-show="status === 'running'"></circle>
+            <text class="ring__core-label" x="230" y="221" x-text="event ? 'Event' : 'Idle'"></text>
+            <text class="ring__core-value" x="230" y="240" x-text="event ? stepLabel : '—'"></text>
+          </g>
+
+          <!-- travelling message packets are injected here -->
+          <g id="packets"></g>
+
+          <!-- the five agent nodes -->
+          <g id="nodes"></g>
+        </svg>
+      </div>
+
+      <!-- the most recent message, in full -->
+      <template x-if="lastMessage">
+        <div class="envelope" :class="lastMessage.priority === 'critical' && 'envelope--critical'">
+          <div class="envelope__route">
+            <span x-text="lastMessage.from_label"></span>
+            <span class="envelope__arrow">→</span>
+            <span x-text="lastMessage.to_label"></span>
+          </div>
+          <div class="envelope__subject" x-text="lastMessage.subject"></div>
+          <div class="envelope__body" x-text="lastMessage.body"></div>
+        </div>
+      </template>
+      </div>
+    </section>
+
+    <!-- RIGHT: event, decisions, company state -->
+    <section class="panel">
+      <div class="event-card">
+        <span class="eyebrow">Current event</span>
+        <template x-if="event">
+          <div>
+            <div class="event-card__title" x-text="event.title"></div>
+            <div class="event-card__summary" x-text="event.summary"></div>
+            <div class="chips">
+              <span class="chip" :class="'chip--' + event.priority" x-text="event.priority"></span>
+              <span class="chip" x-text="'Step ' + currentStep + ' / ' + totalSteps"></span>
+              <template x-if="currentActorLabel">
+                <span class="chip chip--live" x-text="currentActorLabel"></span>
+              </template>
+            </div>
+            <div class="progress"><div class="progress__fill" :style="'width:' + progress + '%'"></div></div>
+          </div>
+        </template>
+        <template x-if="!event">
+          <div class="event-card__summary" style="margin-top:8px">
+            No event running. Pick a scenario and run the simulation to wake the company.
+          </div>
+        </template>
+      </div>
+
+      <div class="panel__head">
+        <span class="eyebrow">Company state</span>
+      </div>
+      <div class="metrics-wrap">
+        <div class="metrics">
+          <template x-for="m in metricCards" :key="m.key">
+            <div class="metric" :data-flash="m.flash">
+              <div class="metric__label" x-text="m.label"></div>
+              <div class="metric__value">
+                <span x-text="m.display"></span>
+                <template x-if="m.delta">
+                  <span class="metric__delta" :class="m.delta > 0 ? 'metric__delta--up' : 'metric__delta--down'"
+                        x-text="(m.delta > 0 ? '+' : '') + m.delta"></span>
+                </template>
+              </div>
+              <template x-if="m.pct !== null">
+                <div class="bar"><div class="bar__fill" :style="'width:' + m.pct + '%;background:' + m.color"></div></div>
+              </template>
+            </div>
+          </template>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ------------------------------------------------- the story so far -->
+  <section class="panel band">
+    <div class="panel__head">
+      <div class="tabs" role="tablist">
+        <button class="tab" :class="tab === 'story' && 'tab--on'" @click="tab = 'story'"
+                role="tab" :aria-selected="tab === 'story'">Story</button>
+        <button class="tab" :class="tab === 'log' && 'tab--on'" @click="tab = 'log'"
+                role="tab" :aria-selected="tab === 'log'">Raw log</button>
+      </div>
+      <span class="eyebrow"
+            x-text="tab === 'story' ? turns.length + ' of ' + (totalSteps || '—') + ' turns'
+                                     : timeline.length + ' entries'"></span>
+    </div>
+
+    <!-- each finished turn, as a case file -->
+    <div class="film" x-ref="film" x-show="tab === 'story'">
+      <template x-if="turns.length === 0">
+        <div class="empty">
+          <div>
+            <b>No turns yet.</b>
+            Run a simulation and each agent's turn appears here — what it looked up,
+            what it decided, and what that changed.
+          </div>
+        </div>
+      </template>
+      <template x-for="t in turns" :key="t.index">
+        <article class="dossier" :data-actor="t.actor" :data-live="t.live">
+          <header class="dossier__head">
+            <span class="dossier__index" x-text="String(t.index).padStart(2, '0')"></span>
+            <span class="dossier__actor" x-text="t.actor_label"></span>
+            <template x-if="t.priority">
+              <span class="chip" :class="'chip--' + t.priority" x-text="t.priority"></span>
+            </template>
+            <template x-if="t.live">
+              <span class="chip chip--live">working</span>
+            </template>
+          </header>
+
+          <p class="dossier__thought" x-text="t.thought || t.label + '…'"></p>
+
+          <template x-if="t.tools.length">
+            <div class="dossier__row">
+              <span class="dossier__key">Looked up</span>
+              <span class="dossier__tools">
+                <template x-for="(tool, i) in t.tools" :key="i">
+                  <span class="tool" x-text="tool"></span>
+                </template>
+              </span>
+            </div>
+          </template>
+
+          <template x-if="t.decision">
+            <div class="dossier__row">
+              <span class="dossier__key">Decided</span>
+              <span class="dossier__decision" x-text="t.decision.replaceAll('_', ' ')"></span>
+            </div>
+          </template>
+
+          <template x-if="t.reason">
+            <div class="dossier__row">
+              <span class="dossier__key">Because</span>
+              <span class="dossier__reason" x-text="t.reason"></span>
+            </div>
+          </template>
+
+          <template x-if="t.message">
+            <div class="dossier__row">
+              <span class="dossier__key">Sent to</span>
+              <span class="dossier__sent">
+                <b x-text="t.message.to_label"></b>
+                <span x-text="t.message.subject"></span>
+              </span>
+            </div>
+          </template>
+
+          <template x-if="t.impact.length">
+            <footer class="dossier__impact">
+              <template x-for="(im, i) in t.impact" :key="i">
+                <span class="impact" :class="im.value > 0 ? 'impact--up' : 'impact--down'">
+                  <span x-text="im.label"></span>
+                  <b x-text="(im.value > 0 ? '+' : '') + im.value"></b>
+                </span>
+              </template>
+            </footer>
+          </template>
+        </article>
+      </template>
+    </div>
+
+    <!-- everything, unfiltered -->
+    <div class="timeline__body" x-ref="timeline" x-show="tab === 'log'">
+      <template x-if="timeline.length === 0">
+        <div class="empty">
+          <div>
+            <b>Nothing has happened yet.</b>
+            Every observation, tool call, message and decision lands here as it happens.
+          </div>
+        </div>
+      </template>
+      <template x-for="t in timeline" :key="t.id">
+        <div class="tl" :data-kind="t.kind">
+          <span class="tl__time" x-text="t.at"></span>
+          <span class="tl__actor" x-text="t.actor"></span>
+          <span class="tl__text" x-text="t.text"></span>
+        </div>
+      </template>
+    </div>
+  </section>
+
+  <!-- --------------------------------------------------------------- modal -->
+  <template x-if="inspected">
+    <div class="modal-bg" @click.self="inspected = null" @keydown.escape.window="inspected = null">
+      <div class="modal" role="dialog" aria-modal="true">
+        <div class="modal__head">
+          <div>
+            <span class="eyebrow" x-text="inspected.role"></span>
+            <div class="modal__title" x-text="inspected.label"></div>
+          </div>
+          <button class="modal__close" @click="inspected = null" aria-label="Close">×</button>
+        </div>
+        <div class="modal__body">
+          <div class="section-label">Personality</div>
+          <div style="font-size:12.5px;line-height:1.6;color:var(--muted)" x-text="inspected.personality"></div>
+
+          <div class="section-label">Goals</div>
+          <ul class="goal-list">
+            <template x-for="g in inspected.goals" :key="g"><li x-text="g"></li></template>
+          </ul>
+
+          <div class="section-label">Tools</div>
+          <div class="chips">
+            <template x-for="t in inspected.tools" :key="t"><span class="chip" x-text="t + '()'"></span></template>
+          </div>
+
+          <div class="section-label">Long-term memory</div>
+          <template x-if="memory.long_term.length === 0">
+            <div class="memory-item">Nothing stored yet.</div>
+          </template>
+          <template x-for="m in memory.long_term" :key="m.id">
+            <div class="memory-item memory-item--lt" x-text="m.content"></div>
+          </template>
+
+          <div class="section-label">Short-term memory (this run)</div>
+          <template x-if="memory.short_term.inbox.length === 0 && memory.short_term.notes.length === 0">
+            <div class="memory-item">Empty. It fills while a simulation runs.</div>
+          </template>
+          <template x-for="(m, i) in memory.short_term.inbox" :key="'i' + i">
+            <div class="memory-item memory-item--st" x-text="m"></div>
+          </template>
+          <template x-for="(m, i) in memory.short_term.notes" :key="'n' + i">
+            <div class="memory-item memory-item--st" x-text="m"></div>
+          </template>
+        </div>
+      </div>
+    </div>
+  </template>
+
+</div>
+
+<script src="/static/js/app.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+</body>
+</html>
