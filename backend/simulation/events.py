@@ -169,14 +169,28 @@ CUSTOM_STEPS = [
 ]
 
 
-def build_custom_event(text: str) -> EventDefinition:
-    """Turn a free-text situation into a runnable workflow."""
+def build_custom_event(text: str, submitter: str = "") -> EventDefinition:
+    """Turn a free-text situation into a runnable workflow.
+
+    `submitter` names whoever sent it, for situations that arrived through the
+    contact form rather than being typed straight into the dashboard. It is
+    prepended to what the agents read, but deliberately kept out of the title
+    and summary: those are cut from the front of the string, so a sender line
+    there would leave every event card reading "A message arrived from…".
+    """
     situation = " ".join(text.split())[:500]
     if not situation:
         raise ValueError("Describe the situation before running it.")
 
     # A short title for the card, cut at a word boundary rather than mid-word.
     title = situation if len(situation) <= 46 else situation[:46].rsplit(" ", 1)[0] + "…"
+
+    read_by_agents = situation
+    if submitter:
+        read_by_agents = (
+            f"A message arrived through the website contact form.\n"
+            f"From: {submitter}\n\n{situation}"
+        )
 
     return EventDefinition(
         key="custom",
@@ -185,7 +199,7 @@ def build_custom_event(text: str) -> EventDefinition:
         priority="high",
         icon="custom",
         steps=[
-            Step(actor=actor, label=label, task=task.format(text=situation))
+            Step(actor=actor, label=label, task=task.format(text=read_by_agents))
             for actor, label, task in CUSTOM_STEPS
         ],
     )

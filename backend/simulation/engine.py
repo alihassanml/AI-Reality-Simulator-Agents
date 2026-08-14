@@ -95,12 +95,13 @@ class SimulationEngine:
     def is_busy(self) -> bool:
         return self._task is not None and not self._task.done()
 
-    async def trigger(self, event_key: str, prompt: str = "") -> dict[str, Any]:
+    async def trigger(self, event_key: str, prompt: str = "",
+                      submitter: str = "") -> dict[str, Any]:
         """Start a preset scenario, or a situation the user described themselves."""
         if self.is_busy():
             return {"ok": False, "error": "A simulation is already running."}
         if event_key == "custom":
-            definition = event_defs.build_custom_event(prompt)
+            definition = event_defs.build_custom_event(prompt, submitter)
         else:
             definition = event_defs.get(event_key)
         self._task = asyncio.create_task(self._run(definition))

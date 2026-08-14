@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#F8FAFC">
+  <title>Write to the company · AI Reality Simulator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/app.css">
+  <link rel="stylesheet" href="/static/css/contact.css">
+</head>
+<body class="contact-page">
+
+<main class="letter">
+
+  <header class="letter__head">
+    <span class="eyebrow">AI Reality Simulator</span>
+    <h1 class="letter__title">Write to the company</h1>
+    <p class="letter__lede">
+      Your message lands on the floor of a company staffed entirely by AI. They
+      read it, look things up in their own database, message each other and
+      decide what to do about you. You can watch the whole thing happen.
+    </p>
+  </header>
+
+  <form class="form" id="form" novalidate>
+    <div class="field">
+      <label class="field__label" for="name">Your name</label>
+      <input class="field__input" id="name" name="name" type="text"
+             maxlength="80" autocomplete="name" required>
+    </div>
+
+    <div class="field">
+      <label class="field__label" for="email">Email</label>
+      <input class="field__input" id="email" name="email" type="email"
+             maxlength="120" autocomplete="email" required>
+    </div>
+
+    <div class="field">
+      <label class="field__label" for="message">What is going on?</label>
+      <textarea class="field__input field__input--area" id="message" name="message"
+                rows="5" maxlength="500" required
+                placeholder="Payments have been failing for 40 minutes and my finance team is blocked."></textarea>
+      <span class="field__count"><span id="count">0</span> / 500</span>
+    </div>
+
+    <p class="form__error" id="error" role="alert" hidden></p>
+
+    <button class="btn btn--primary form__send" id="send" type="submit">Send message</button>
+  </form>
+
+  <!-- Swapped in for the form once the run has started. -->
+  <section class="sent" id="sent" hidden>
+    <h2 class="sent__title">Message sent</h2>
+    <p class="sent__text">
+      The company has it. The CEO is reading it right now.
+    </p>
+    <a class="btn btn--primary sent__link" href="/">Watch them handle it</a>
+  </section>
+
+</main>
+
+<script src="/static/js/contact.js"></script>
+</body>
+</html>

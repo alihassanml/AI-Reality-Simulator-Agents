@@ -1,0 +1,135 @@
+/* The public front door. Borrows every colour from app.css: this file only
+   describes the one-column letter layout and the form controls. */
+
+/* The hidden attribute is only a UA `display: none`, so any author display
+   rule beats it -- and .form sets display:flex. Without this the form stays
+   on screen underneath its own confirmation. */
+[hidden] { display: none !important; }
+
+.contact-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: start center;
+  padding: 48px 20px 64px;
+}
+
+.letter {
+  width: min(560px, 100%);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  padding: 32px 34px 34px;
+}
+
+/* ------------------------------------------------------------------ head */
+
+.letter__head { margin-bottom: 26px; }
+
+.letter__title {
+  font-family: var(--font);
+  font-weight: 800;
+  font-size: 30px;
+  letter-spacing: -.02em;
+  color: var(--text);
+  margin: 8px 0 10px;
+}
+
+.letter__lede {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--muted);
+  margin: 0;
+}
+
+/* ------------------------------------------------------------------ form */
+
+.form { display: flex; flex-direction: column; gap: 16px; }
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+
+.field__label {
+  font-family: var(--font);
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.field__input {
+  width: 100%;
+  font-family: var(--font);
+  font-size: 15px;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 10px 12px;
+  transition: border-color .18s, background .18s, box-shadow .18s;
+}
+.field__input::placeholder { color: var(--faint); }
+.field__input:hover:not(:disabled) { border-color: color-mix(in srgb, var(--brand) 38%, var(--border)); }
+
+/* The ring does the work a heavier border would do, without the 1px reflow. */
+.field__input:focus {
+  outline: none;
+  background: var(--card);
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px var(--brand-soft);
+}
+.field__input:disabled { opacity: .55; cursor: not-allowed; }
+
+.field__input--area { resize: vertical; min-height: 120px; line-height: 1.55; }
+
+.field__count {
+  align-self: flex-end;
+  font-family: var(--font);
+  font-size: 12px;
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.form__error {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--error-ink);
+  background: color-mix(in srgb, var(--error) 8%, var(--card));
+  border: 1px solid color-mix(in srgb, var(--error) 38%, var(--border));
+  border-radius: 9px;
+  padding: 10px 12px;
+}
+
+.form__send { align-self: flex-start; padding: 11px 22px; font-size: 14px; }
+
+/* --------------------------------------------------------------- receipt */
+
+/* Replaces the form in place, so the page does not jump on submit. */
+.sent { text-align: center; padding: 18px 0 6px; animation: rise .3s ease-out; }
+
+.sent__title {
+  font-family: var(--font);
+  font-weight: 800;
+  font-size: 24px;
+  letter-spacing: -.02em;
+  color: var(--text);
+  margin: 0 0 8px;
+}
+
+.sent__text {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--muted);
+  margin: 0 0 22px;
+}
+
+.sent__link { display: inline-block; text-decoration: none; padding: 11px 22px; font-size: 14px; }
+
+/* ------------------------------------------------------------ responsive */
+
+@media (max-width: 560px) {
+  .contact-page { padding: 24px 14px 40px; }
+  .letter { padding: 24px 20px 26px; }
+  .letter__title { font-size: 25px; }
+  .form__send { align-self: stretch; text-align: center; }
+}

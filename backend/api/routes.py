@@ -19,6 +19,14 @@ class TriggerRequest(BaseModel):
     prompt: str = ""
 
 
+class ContactRequest(BaseModel):
+    """One submission of the public contact form."""
+
+    name: str = ""
+    email: str = ""
+    message: str = ""
+
+
 @router.get("/state")
 async def read_state() -> dict:
     """Everything needed to draw the dashboard on first load."""
@@ -35,6 +43,26 @@ async def read_state() -> dict:
 async def trigger(req: TriggerRequest) -> dict:
     try:
         return await engine.trigger(req.event, req.prompt)
+    except (KeyError, ValueError) as exc:
+        return {"ok": False, "error": str(exc).strip('"')}
+
+
+@router.post("/contact")
+async def contact(req: ContactRequest) -> dict:
+    """The public front door: a message from outside starts a run.
+
+    It goes through the same custom-event path as the dashboard's own input,
+    so the browsers already listening on /ws light up without being told.
+    """
+    message = req.message.strip()
+    if not message:
+        return {"ok": False, "error": "Write a message before sending it."}
+
+    name, email = req.name.strip(), req.email.strip()
+    sender = f"{name} <{email}>" if name and email else (name or email)
+
+    try:
+        return await engine.trigger("custom", message, sender)
     except (KeyError, ValueError) as exc:
         return {"ok": False, "error": str(exc).strip('"')}
 

@@ -38,6 +38,12 @@ async def dashboard(request: Request) -> HTMLResponse:
     )
 
 
+@app.get("/contact", response_class=HTMLResponse)
+async def contact_form(request: Request) -> HTMLResponse:
+    """The public side of the company: where a message comes in from."""
+    return templates.TemplateResponse(request=request, name="contact.html")
+
+
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket) -> None:
     """Push every simulation event to the dashboard as it happens (§10)."""

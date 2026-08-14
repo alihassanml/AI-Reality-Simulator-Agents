@@ -17,7 +17,7 @@ ONE EVENT  →  FIVE AI AGENTS  →  THEY TALK  →  THEY DECIDE  →  THE COMPA
 
 ---
 
-## 1. Two ways to start
+## 1. Three ways to start
 
 **Pick a preset** from the dropdown Customer Complaint runs the hand-written
 8-turn workflow below.
@@ -28,6 +28,14 @@ leak"*, *"Our biggest competitor just cut prices by half"*. The company runs a
 generic six-turn flow against whatever you typed the CEO triages it, the
 developer investigates, sales reads the customer impact, the CEO decides, the
 customer reacts, the investor judges.
+
+**Or write to the company** at <http://127.0.0.1:8000/contact>, which is the
+same six-turn flow entered from the other side. You are not the operator there,
+you are the customer: you leave a name, an email and a message, and the company
+starts dealing with you. Open the contact page in one tab and the dashboard in
+another, send the message, and switch back the board is already moving. The
+form never talks to the dashboard tab. It posts, the engine broadcasts, and any
+browser already listening on the WebSocket redraws itself.
 
 ---
 
@@ -234,6 +242,13 @@ one WebSocket. The browser never polls.
 If you refresh mid-run, the server replays the events so the screen redraws
 correctly instead of going blank.
 
+The contact form rides the same wire. `POST /api/contact` composes the name,
+email and message into one situation and hands it to the same custom-event path
+the dashboard input uses, so a submission from a completely separate tab lights
+up every dashboard that happens to be open. The engine refuses a second run
+while one is in flight, and the form shows that refusal rather than pretending
+the message was accepted.
+
 ---
 
 ## 6. What you see on the dashboard
@@ -345,8 +360,11 @@ backend/
 └── api/routes.py        The buttons: trigger, pause, resume, reset.
 
 templates/index.html     The whole dashboard, one file.
+templates/contact.html   The public front door: name, email, message.
 static/css/app.css       The look: light slate-and-blue console.
+static/css/contact.css   Only the letter layout and the form controls.
 static/js/app.js         WebSocket client, the ring, the flying messages.
+static/js/contact.js     Posts the form, swaps in the receipt, shows refusals.
 ```
 
 ---
@@ -410,7 +428,9 @@ python3 -m venv .venv
 ./.venv/bin/python -m uvicorn backend.main:app --reload --port 8000
 ```
 
-Open <http://127.0.0.1:8000> and press **Run simulation**.
+Open <http://127.0.0.1:8000> and press **Run simulation**, or open
+<http://127.0.0.1:8000/contact> in a second tab and write to the company
+instead.
 
 `.env` needs:
 
@@ -468,8 +488,10 @@ lead are each about twenty lines of this.
 | Method | Path | Purpose |
 | --- | --- | --- |
 | GET | `/` | The dashboard |
+| GET | `/contact` | The public contact form |
 | GET | `/api/state` | Everything needed to draw the screen |
 | POST | `/api/simulation/trigger` | Start a preset `{"event": "customer_complaint"}` or a typed one `{"event": "custom", "prompt": "..."}` |
+| POST | `/api/contact` | A message from outside `{"name": "...", "email": "...", "message": "..."}`. Runs the custom flow with the sender named |
 | POST | `/api/simulation/pause` | Freeze between turns |
 | POST | `/api/simulation/resume` | Continue |
 | POST | `/api/simulation/reset` | Stop and restore the seeded world |
