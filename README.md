@@ -127,15 +127,17 @@ graph LR
     S -->|"here is what happened"| C
     CEO -.->|"business impact"| I[Investor Agent]:::inv
 
-    classDef cust fill:#3b2f1a,stroke:#FFAE3B,color:#fff
-    classDef sales fill:#1a2f3b,stroke:#6EC7F2,color:#fff
-    classDef ceo fill:#3b1a1a,stroke:#FF5F4E,color:#fff
-    classDef dev fill:#2a1a3b,stroke:#A78BFA,color:#fff
-    classDef inv fill:#1a3b2a,stroke:#4ADE80,color:#fff
+    classDef cust fill:#EFF6FF,stroke:#2563EB,color:#0F172A
+    classDef sales fill:#FEF5E7,stroke:#F59E0B,color:#0F172A
+    classDef ceo fill:#FEF0F0,stroke:#EF4444,color:#0F172A
+    classDef dev fill:#F5F3FF,stroke:#7C3AED,color:#0F172A
+    classDef inv fill:#EBFAF1,stroke:#22C55E,color:#0F172A
 ```
 
 On the dashboard this is the **signal ring** in the middle. The five agents sit
-in a pentagon, and every message flies across the circle as a glowing dot.
+in a pentagon, and every message flies across the circle as a travelling dot
+blue normally, red when the sender marked it critical. Each agent keeps the
+same colour everywhere it appears on the board.
 
 ---
 
@@ -244,11 +246,11 @@ correctly instead of going blank.
 │          │                                    │  Customer Complaint      │
 │ CEO      │            CUSTOMER                │  critical · step 4 / 8   │
 │ ✓ decided│               ○                    │  ──────────────────────  │
-│          │      ○               ○             │  COMPANY STATE           │
-│ SALES    │  INVESTOR         SALES            │  revenue     $2.40M      │
-│ ✓ escal. │        ┌───────┐        ┌────────┐ │  satisfaction    77%     │
-│          │        │  4/8  │        │ latest │ │  reputation      73%     │
-│ DEVELOPER│        └───────┘        │message │ │  confidence      76%     │
+│          │      ○               ○             │  COMPANY HEALTH          │
+│ SALES    │  INVESTOR         SALES            │  satisfaction    77%     │
+│ ✓ escal. │        ┌───────┐        ┌────────┐ │  reputation      73%     │
+│          │        │  4/8  │        │ latest │ │  confidence      76%     │
+│ DEVELOPER│        └───────┘        │message │ │  ──────────────────────  │
 │ ● think… │      ○               ○  └────────┘ │  issues 0   tasks 2      │
 │          │     DEV             CEO            │                          │
 │ CUSTOMER │                                    │                          │
@@ -274,12 +276,35 @@ correctly instead of going blank.
 read left to right in the order it happened, showing the same five things every
 time: what the agent **looked up**, what it **decided**, **because** of what, who
 it **sent** to, and what that **changed**. The card of the agent currently working
-glows and fills in live.
+is ringed in blue and fills in live.
 
 Switch to **Raw log** for the unfiltered stream of every event.
 
 Click any character card on the left to open its brain: personality, goals,
 tools, and both kinds of memory.
+
+### The palette
+
+One token block at the top of `static/css/app.css` drives every colour on the
+screen. There is no hard-coded hex anywhere below it.
+
+| Role | Colour |
+| --- | --- |
+| Page · card · border | `#F8FAFC` · `#FFFFFF` · `#E2E8F0` |
+| Text: primary · secondary · muted | `#0F172A` · `#64748B` · `#94A3B8` |
+| Messages, live state, primary buttons | `#2563EB` (hover `#1D4ED8`, tint `#EFF6FF`) |
+| Thinking, decisions, short-term memory | `#7C3AED` (tint `#F5F3FF`) |
+| Tool calls, high priority, paused | `#F59E0B` |
+| Done, state moved, positive impact | `#22C55E` |
+| Errors, critical, negative impact | `#EF4444` |
+
+Each hue means one thing and only that thing, so the raw log tells you what
+kind of event you are looking at before you have read a word of it.
+
+Green, amber and red are fills, not inks: against white none of the three
+clears the 4.5:1 contrast floor, so wherever one of them lands on *text* the
+stylesheet substitutes a darkened mix of it `--success-ink`, `--warn-ink`,
+`--error-ink` and keeps the raw value for bars, borders and tints.
 
 ## 7. What was built, file by file
 
