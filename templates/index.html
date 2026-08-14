@@ -3,10 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#F8FAFC">
   <title>AI Reality Simulator</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/css/app.css">
 </head>
 <body>
@@ -16,13 +17,11 @@
   <header class="masthead">
     <div class="brand">
       <span class="brand__mark">AI Reality <em>Simulator</em></span>
-      <span class="brand__sub">{{ model_name }}</span>
     </div>
 
     <div class="masthead__spacer"></div>
 
     <div class="runstate" :data-state="status">
-      <span class="runstate__dot"></span>
       <span x-text="statusLabel"></span>
     </div>
 
@@ -36,7 +35,7 @@
       <input class="prompt__field" type="text" maxlength="500"
              x-model="customPrompt" :disabled="isBusy"
              @keydown.enter="trigger()"
-             placeholder="…or describe your own situation"
+             placeholder="Or describe your own situation"
              aria-label="Describe your own situation">
       <button class="prompt__clear" x-show="customPrompt.trim()" @click="customPrompt = ''"
               aria-label="Clear">×</button>
@@ -201,7 +200,7 @@
         <div class="empty">
           <div>
             <b>No turns yet.</b>
-            Run a simulation and each agent's turn appears here — what it looked up,
+            Run a simulation and each agent's turn appears here what it looked up,
             what it decided, and what that changed.
           </div>
         </div>
@@ -303,7 +302,7 @@
         </div>
         <div class="modal__body">
           <div class="section-label">Personality</div>
-          <div style="font-size:12.5px;line-height:1.6;color:var(--muted)" x-text="inspected.personality"></div>
+          <div class="modal__text" x-text="inspected.personality"></div>
 
           <div class="section-label">Goals</div>
           <ul class="goal-list">

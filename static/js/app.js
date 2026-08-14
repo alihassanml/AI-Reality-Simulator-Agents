@@ -1,4 +1,4 @@
-/* AI Reality Simulator — dashboard client */
+/* AI Reality Simulator dashboard client */
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 const CENTRE = 230;
@@ -177,11 +177,11 @@ function simulator() {
         const value = this.company[m.key] ?? 0;
         const delta = this.lastDeltas[m.key] || 0;
         let display = value;
-        let pct = null, color = "var(--amber)";
+        let pct = null, color = "var(--warn)";
         if (m.kind === "pct") {
           pct = Math.max(0, Math.min(100, value));
           display = value + "%";
-          color = value >= 70 ? "#4ADE80" : value >= 45 ? "var(--amber)" : "var(--ember)";
+          color = value >= 70 ? "var(--success)" : value >= 45 ? "var(--warn)" : "var(--error)";
         }
         return {
           key: m.key, label: m.label, display, pct, color, delta,
@@ -295,7 +295,7 @@ function simulator() {
           this.tab = "story";
           this.lastMessage = null;
           this.messageCount = 0;
-          this.push("system", "system", `Event triggered — ${e.event.title}`, e.at);
+          this.push("system", "system", `Event triggered ${e.event.title}`, e.at);
           break;
 
         case "step_started":
@@ -306,7 +306,7 @@ function simulator() {
             message: null, impact: [], live: true,
           });
           this.scrollFilm();
-          this.push("system", e.actor_label, `Step ${e.index} — ${e.label}`, e.at);
+          this.push("system", e.actor_label, `Step ${e.index} ${e.label}`, e.at);
           break;
 
         case "agent_status":
@@ -323,7 +323,7 @@ function simulator() {
           if (this.openTurn && !this.openTurn.tools.includes(e.tool)) {
             this.openTurn.tools.push(e.tool);
           }
-          this.push("tool_call", this.labelFor(e.actor), `${e.tool}() — ${e.detail}`, e.at);
+          this.push("tool_call", this.labelFor(e.actor), `${e.tool}() ${e.detail}`, e.at);
           break;
 
         case "message":
@@ -340,7 +340,7 @@ function simulator() {
               decision: e.decision, reason: e.reason, priority: e.priority,
             });
           }
-          this.push("decision", e.actor_label, `${e.decision.replaceAll("_", " ")} — ${e.reason}`, e.at);
+          this.push("decision", e.actor_label, `${e.decision.replaceAll("_", " ")} ${e.reason}`, e.at);
           break;
 
         case "state_update":
@@ -358,7 +358,7 @@ function simulator() {
           break;
 
         case "memory_stored":
-          this.push("memory", this.labelFor(e.agent), `remembered — ${e.content}`, e.at);
+          this.push("memory", this.labelFor(e.agent), `remembered ${e.content}`, e.at);
           break;
 
         case "run_completed":

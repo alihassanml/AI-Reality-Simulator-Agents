@@ -1,7 +1,7 @@
 # AI Reality Simulator
 
-A virtual company staffed by five AI characters. You trigger a business event —
-a customer complains — and then you watch the company deal with it by itself.
+A virtual company staffed by five AI characters. You trigger a business event
+a customer complains and then you watch the company deal with it by itself.
 
 Nobody types into a chatbox. The agents read the situation, look things up in a
 database, message each other, make decisions, and those decisions change the
@@ -19,13 +19,13 @@ ONE EVENT  →  FIVE AI AGENTS  →  THEY TALK  →  THEY DECIDE  →  THE COMPA
 
 ## 1. Two ways to start
 
-**Pick a preset** from the dropdown — Customer Complaint runs the hand-written
+**Pick a preset** from the dropdown Customer Complaint runs the hand-written
 8-turn workflow below.
 
 **Or type your own situation** in the box next to it and press Run. Anything
 works: *"Our AWS bill tripled overnight"*, *"A journalist is asking about a data
 leak"*, *"Our biggest competitor just cut prices by half"*. The company runs a
-generic six-turn flow against whatever you typed — the CEO triages it, the
+generic six-turn flow against whatever you typed the CEO triages it, the
 developer investigates, sales reads the customer impact, the CEO decides, the
 customer reacts, the investor judges.
 
@@ -41,7 +41,7 @@ turn, exactly one agent wakes up, thinks, uses its tools, and acts.
                                    │
                                    ▼
     ┌──────────────────────────────────────────────────────────────┐
-    │  TURN 1 — CUSTOMER AGENT                                     │
+    │  TURN 1 CUSTOMER AGENT                                     │
     │  "Payments are failing. My finance team is blocked."         │
     │  → sends complaint to Sales                                  │
     │  → satisfaction  82 → 67                                     │
@@ -49,7 +49,7 @@ turn, exactly one agent wakes up, thinks, uses its tools, and acts.
                                    │
                                    ▼
     ┌──────────────────────────────────────────────────────────────┐
-    │  TURN 2 — SALES AGENT                                        │
+    │  TURN 2 SALES AGENT                                        │
     │  tools: get_customer() get_customer_history() create_ticket()│
     │  Learns: ACME is $120k/year, renews in 30 days, already      │
     │          complained once, is eyeing a competitor             │
@@ -58,14 +58,14 @@ turn, exactly one agent wakes up, thinks, uses its tools, and acts.
                                    │
                                    ▼
     ┌──────────────────────────────────────────────────────────────┐
-    │  TURN 3 — CEO                                                │
+    │  TURN 3 CEO                                                │
     │  tools: get_company_metrics() assign_task()                  │
     │  → gives the problem ONE owner: the Developer                │
     └──────────────────────────────────────────────────────────────┘
                                    │
                                    ▼
     ┌──────────────────────────────────────────────────────────────┐
-    │  TURN 4 — DEVELOPER AGENT                                    │
+    │  TURN 4 DEVELOPER AGENT                                    │
     │  tools: check_service_status() get_logs() search_errors()    │
     │         create_bug_report()                                  │
     │  Finds the real log line:                                    │
@@ -75,7 +75,7 @@ turn, exactly one agent wakes up, thinks, uses its tools, and acts.
                                    │
                                    ▼
     ┌──────────────────────────────────────────────────────────────┐
-    │  TURN 5 — CEO                                                │
+    │  TURN 5 CEO                                                │
     │  tools: approve_action() resolve_ticket() complete_task()    │
     │  → approves the fix, CLOSES the ticket                       │
     │  → active issues  1 → 0                                      │
@@ -83,20 +83,20 @@ turn, exactly one agent wakes up, thinks, uses its tools, and acts.
                                    │
                                    ▼
     ┌──────────────────────────────────────────────────────────────┐
-    │  TURN 6 — SALES AGENT                                        │
+    │  TURN 6 SALES AGENT                                        │
     │  → writes the reply to the customer                          │
     └──────────────────────────────────────────────────────────────┘
                                    │
                                    ▼
     ┌──────────────────────────────────────────────────────────────┐
-    │  TURN 7 — CUSTOMER AGENT                                     │
+    │  TURN 7 CUSTOMER AGENT                                     │
     │  Judges the answer: was it fast? was it specific?            │
     │  → satisfaction  67 → 77                                     │
     └──────────────────────────────────────────────────────────────┘
                                    │
                                    ▼
     ┌──────────────────────────────────────────────────────────────┐
-    │  TURN 8 — INVESTOR AGENT                                     │
+    │  TURN 8 INVESTOR AGENT                                     │
     │  tools: get_revenue() get_customer_metrics()                 │
     │         get_company_report()                                 │
     │  → "handled competently"                                     │
@@ -309,7 +309,7 @@ backend/
 │   ├── short_term.py    What an agent saw during THIS run. Cleared on reset.
 │   └── long_term.py     Durable facts, kept in SQLite between runs.
 │
-├── tools/               16 TOOLS — what agents can actually DO
+├── tools/               16 TOOLS what agents can actually DO
 │   ├── customer.py      get_customer, get_customer_history, create_ticket
 │   ├── developer.py     check_service_status, get_logs, search_errors,
 │   │                    create_bug_report
@@ -320,7 +320,7 @@ backend/
 └── api/routes.py        The buttons: trigger, pause, resume, reset.
 
 templates/index.html     The whole dashboard, one file.
-static/css/app.css       The look: dark amber console.
+static/css/app.css       The look: light slate-and-blue console.
 static/js/app.js         WebSocket client, the ring, the flying messages.
 ```
 
@@ -367,12 +367,12 @@ history, it finds a genuine reason to panic.
 
    These are judgements.      These are facts. If an agent forgot to
    Only an agent can          decrement one, the number would drift and
-   decide them.               lie — so the agent is never asked for it.
+   decide them.               lie so the agent is never asked for it.
 ```
 
 **Some numbers belong to one character.** Only the Customer changes customer
 satisfaction. Only the Investor changes investor confidence. Enforced in code
-(`DELTA_OWNERS` in `engine.py`), not in the prompt — during testing the Sales
+(`DELTA_OWNERS` in `engine.py`), not in the prompt during testing the Sales
 agent tried to set customer satisfaction itself, and was refused.
 
 ---
@@ -394,17 +394,17 @@ OPENAI_API_KEY="sk-..."
 MODEL_NAME="openai:gpt-4.1-mini"
 ```
 
-Optional: `MIN_STEP_SECONDS` (how long each step is held on screen, default 1.6 —
+Optional: `MIN_STEP_SECONDS` (how long each step is held on screen, default 1.6
 raise it if the demo runs too fast to read), `DB_PATH`.
 
 ---
 
 ## 11. Adding the other preset events
 
-You do not need this to run a new scenario — just type it into the box. Add a
+You do not need this to run a new scenario just type it into the box. Add a
 preset when you want a hand-tuned workflow with specific per-turn instructions.
 
-Events are data, not code. The engine does not know what a complaint is — it just
+Events are data, not code. The engine does not know what a complaint is it just
 walks a list of steps. To add "Production Bug", append an `EventDefinition` to
 `backend/simulation/events.py` and register it in `CATALOG`:
 
@@ -433,8 +433,8 @@ CATALOG = {
 ```
 
 No engine changes, no frontend changes. The remaining five scenarios from the
-spec — production bug, lost customer, investor question, security incident, new
-lead — are each about twenty lines of this.
+spec production bug, lost customer, investor question, security incident, new
+lead are each about twenty lines of this.
 
 ---
 
@@ -444,7 +444,7 @@ lead — are each about twenty lines of this.
 | --- | --- | --- |
 | GET | `/` | The dashboard |
 | GET | `/api/state` | Everything needed to draw the screen |
-| POST | `/api/simulation/trigger` | Start a preset — `{"event": "customer_complaint"}` — or a typed one — `{"event": "custom", "prompt": "..."}` |
+| POST | `/api/simulation/trigger` | Start a preset `{"event": "customer_complaint"}` or a typed one `{"event": "custom", "prompt": "..."}` |
 | POST | `/api/simulation/pause` | Freeze between turns |
 | POST | `/api/simulation/resume` | Continue |
 | POST | `/api/simulation/reset` | Stop and restore the seeded world |

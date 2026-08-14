@@ -266,7 +266,7 @@ class SimulationEngine:
 
         if decision.message:
             msg = decision.message
-            line = f"From {AGENT_LABELS[actor]} — {msg.subject}: {msg.body}"
+            line = f"From {AGENT_LABELS[actor]} {msg.subject}: {msg.body}"
             self.stm.deliver(msg.to, line)
             self._record(index, "message", actor, msg.to, msg.model_dump())
             await bus.emit("message", {
@@ -280,7 +280,7 @@ class SimulationEngine:
             })
 
         for notified in step.notify:
-            self.stm.deliver(notified, f"{AGENT_LABELS[actor]} decided: {decision.decision} — {decision.reason}")
+            self.stm.deliver(notified, f"{AGENT_LABELS[actor]} decided: {decision.decision} {decision.reason}")
 
         if not decision.state_delta.is_empty():
             deltas, refused = _authorised_deltas(actor, decision.state_delta.as_dict())
